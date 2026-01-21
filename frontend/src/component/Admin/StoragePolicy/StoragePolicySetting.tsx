@@ -328,6 +328,17 @@ export const PolicyPropsMap: Record<PolicyType, PolicyProps> = {
     ),
     bucketType: "policy.tokenStatus",
   },
+  [PolicyType.cloud189]: {
+    name: "policy.cloud189",
+    img: "/static/img/remote.png",
+    wizardSize: "sm",
+    akName: "policy.cloud189Account",
+    skName: "policy.cloud189Password",
+    credentialDes: <Trans i18nKey="policy.cloud189CredentialDes" ns="dashboard" />,
+    chunkSizeMin: 1024 * 1024, //1MB
+    chunkSizeMax: 100 * 1024 * 1024, //100MB
+    chunkSizeDes: "policy.chunkSizeDesCloud189",
+  },
 };
 
 const StoragePolicySetting = () => {
