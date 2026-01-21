@@ -45,34 +45,32 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
         go-version: '1.21'
 
-    - name: Create assets directory and files
+    - name: Build frontend
       run: |
-        mkdir -p application/statics
-        mkdir -p temp_assets/assets/build
-        
-        # Create version.json
-        cat > temp_assets/assets/build/version.json << EOF
-        {
-          "name": "cloudreve-frontend",
-          "version": "4.0.0"
-        }
-        EOF
-        
-        # Create assets.zip with correct structure
-        cd temp_assets
-        zip -r ../application/statics/assets.zip assets/
+        cd frontend-master
+        npm install
+        npm run build
         cd ..
         
-        # Verify the zip structure
-        unzip -l application/statics/assets.zip
+        # Create assets.zip from frontend build
+        mkdir -p application/statics
+        cd frontend-master/dist
+        zip -r ../../application/statics/assets.zip .
+        cd ../..
         
-        # Clean up
-        rm -rf temp_assets
+        # Verify the zip structure
+        echo "Verifying assets.zip structure:"
+        unzip -l application/statics/assets.zip | head -20
 
     - name: Get version
       id: get_version
