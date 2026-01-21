@@ -30,6 +30,7 @@ import RemoteWizard from "./Wizards/Remote/RemoteWizard";
 import S3Wizard from "./Wizards/S3/S3Wizard";
 import KS3Wizard from "./Wizards/KS3/KS3Wizard";
 import UpyunWizard from "./Wizards/Upyun/UpyunWizard";
+import Cloud189Wizard from "./Wizards/Cloud189/Cloud189Wizard";
 
 export const PageQuery = "page";
 export const PageSizeQuery = "page_size";
@@ -332,6 +333,7 @@ export const PolicyPropsMap: Record<PolicyType, PolicyProps> = {
     name: "policy.cloud189",
     img: "/static/img/remote.png",
     wizardSize: "sm",
+    wizard: Cloud189Wizard,
     akName: "policy.cloud189Account",
     skName: "policy.cloud189Password",
     credentialDes: <Trans i18nKey="policy.cloud189CredentialDes" ns="dashboard" />,

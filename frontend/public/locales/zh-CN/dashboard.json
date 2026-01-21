@@ -1030,6 +1030,8 @@
     "odOauthDes": "但是你需要点击下方按钮，并使用 OneDrive 登录授权以完成初始化后才能使用。日后你可以在存储策略列表页面重新进行授权。",
     "cloud189Account": "天翼云盘账号",
     "cloud189Password": "天翼云盘密码",
+    "cloud189AccountDes": "填写你的天翼云盘账号，支持手机号或邮箱。",
+    "cloud189PasswordDes": "填写你的天翼云盘登录密码。",
     "cloud189CredentialDes": "填写你的天翼云盘账号和密码。账号可以是手机号或邮箱。",
     "chunkSizeDesCloud189": "允许范围：1 MB ~ 100 MB，天翼云盘分片上传的分片大小。",
     "gotoAuthPage": "转到授权页面",
