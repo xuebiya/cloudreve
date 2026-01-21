@@ -63,11 +63,14 @@ jobs:
         npm run build
         cd ..
         
-        # Create assets.zip from frontend build
+        # Create assets.zip with correct directory structure
         mkdir -p application/statics
-        cd frontend/build
-        zip -r ../../application/statics/assets.zip .
-        cd ../..
+        mkdir -p temp_assets/assets
+        cp -r frontend/build temp_assets/assets/
+        cd temp_assets
+        zip -r ../application/statics/assets.zip .
+        cd ..
+        rm -rf temp_assets
         
         # Verify the zip structure
         echo "Verifying assets.zip structure:"

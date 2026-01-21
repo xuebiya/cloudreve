@@ -43,17 +43,30 @@ if ($LASTEXITCODE -ne 0) {
 
 Pop-Location
 
-# 创建 assets.zip
+# 创建 assets.zip with correct directory structure
 Write-Host "`nCreating assets.zip..." -ForegroundColor Cyan
 $assetsPath = "application/statics"
 if (!(Test-Path $assetsPath)) {
     New-Item -ItemType Directory -Path $assetsPath | Out-Null
 }
 
-# 压缩前端构建产物
-Push-Location ../frontend-master/dist
-Compress-Archive -Path * -DestinationPath "../../cloudreve-master/$assetsPath/assets.zip" -Force
+# 创建临时目录结构
+$tempDir = "temp_assets"
+if (Test-Path $tempDir) {
+    Remove-Item -Recurse -Force $tempDir
+}
+New-Item -ItemType Directory -Path "$tempDir/assets" -Force | Out-Null
+
+# 复制构建输出到正确的目录结构
+Copy-Item -Recurse -Path "../frontend-master/build" -Destination "$tempDir/assets/build"
+
+# 压缩
+Push-Location $tempDir
+Compress-Archive -Path * -DestinationPath "../$assetsPath/assets.zip" -Force
 Pop-Location
+
+# 清理临时目录
+Remove-Item -Recurse -Force $tempDir
 
 Write-Host "assets.zip created successfully" -ForegroundColor Green
 
