@@ -64,6 +64,8 @@ func (m *manager) CastStoragePolicyOnSlave(ctx context.Context, policy *ent.Stor
 }
 
 func (m *manager) GetStorageDriver(ctx context.Context, policy *ent.StoragePolicy) (driver.Handler, error) {
+	m.l.Debug("Getting storage driver for policy %q (ID: %d, Type: %q)", policy.Name, policy.ID, policy.Type)
+	
 	switch policy.Type {
 	case types.PolicyTypeLocal:
 		return local.New(policy, m.l, m.config), nil
@@ -88,7 +90,8 @@ func (m *manager) GetStorageDriver(ctx context.Context, policy *ent.StoragePolic
 	case types.PolicyTypeCloud189:
 		return cloud189.New(policy, m.l, m.config)
 	default:
-		return nil, ErrUnknownPolicyType
+		m.l.Error("Unknown policy type %q for policy %q (ID: %d)", policy.Type, policy.Name, policy.ID)
+		return nil, serializer.NewError(serializer.CodeInternalSetting, fmt.Sprintf("Unknown policy type: %s", policy.Type), nil)
 	}
 }
 

@@ -7,6 +7,13 @@
 
 > This is a custom build of [Cloudreve](https://github.com/cloudreve/Cloudreve) v4 with **China Telecom Cloud189 (天翼云盘)** storage driver support.
 
+## 📚 Documentation
+
+- **[User Guide (中文)](CLOUD189_USER_GUIDE_CN.md)** - Detailed configuration and usage instructions
+- **[Troubleshooting Guide](CLOUD189_TROUBLESHOOTING.md)** - Common issues and solutions
+- **[Improvements](CLOUD189_IMPROVEMENTS.md)** - Technical implementation details
+- **[Diagnostic Tools](#diagnostic-tools)** - Automated configuration check scripts
+
 ## ✨ Features
 
 ### Cloud189 Storage Driver (NEW)
@@ -154,6 +161,44 @@ VALUES (
 - ❌ Thumbnail generation not supported
 - ❌ Media metadata extraction not supported
 - ⚠️ Currently only supports root directory operations
+
+## � Diagnostic Tools
+
+We provide automated diagnostic scripts to help you verify your Cloud189 configuration:
+
+### Windows
+
+```powershell
+.\check_cloud189.ps1
+```
+
+### Linux/macOS
+
+```bash
+chmod +x check_cloud189.sh
+./check_cloud189.sh
+```
+
+These scripts will:
+- ✅ Check if Cloud189 storage policy exists
+- ✅ Verify user group configuration
+- ✅ List users and their groups
+- ✅ Provide detailed fix suggestions if issues are found
+
+### Common Issues
+
+**"Unknown policy type" error when uploading:**
+
+This usually means your user group is not configured to use the Cloud189 storage policy.
+
+**Solution:**
+1. Run the diagnostic script to identify the issue
+2. Go to Admin Panel → User Groups
+3. Edit the user group
+4. Select the Cloud189 storage policy
+5. Save and try uploading again
+
+For more details, see [Troubleshooting Guide](CLOUD189_TROUBLESHOOTING.md).
 
 ## 🔧 Advanced Configuration
 
