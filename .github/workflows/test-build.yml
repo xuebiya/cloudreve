@@ -22,22 +22,27 @@ jobs:
 
     - name: Create assets
       run: |
-        mkdir -p assets/build
         mkdir -p application/statics
+        mkdir -p temp_assets/assets/build
         
         # Create version.json
-        cat > assets/build/version.json << EOF
+        cat > temp_assets/assets/build/version.json << EOF
         {
           "name": "cloudreve-frontend",
           "version": "4.0.0"
         }
         EOF
         
-        # Create assets.zip
-        cd assets
-        zip -r assets.zip build/
+        # Create assets.zip with correct structure
+        cd temp_assets
+        zip -r ../application/statics/assets.zip assets/
         cd ..
-        cp assets/assets.zip application/statics/assets.zip
+        
+        # Verify the zip structure
+        unzip -l application/statics/assets.zip
+        
+        # Clean up
+        rm -rf temp_assets
 
     - name: Test build for Linux amd64
       env:

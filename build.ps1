@@ -9,15 +9,14 @@ if (!(Test-Path $outputDir)) {
 }
 
 # Create empty assets.zip if frontend resources don't exist
-if (!(Test-Path "assets/assets.zip")) {
+if (!(Test-Path "application/statics/assets.zip")) {
     Write-Host "Creating empty assets.zip..." -ForegroundColor Yellow
-    if (!(Test-Path "assets")) {
-        New-Item -ItemType Directory -Path "assets" | Out-Null
+    if (!(Test-Path "application/statics")) {
+        New-Item -ItemType Directory -Path "application/statics" | Out-Null
     }
     
-    # Create a zip file with version.json
+    # Create a zip file with correct structure
     $tempDir = "temp_assets"
-    New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
     New-Item -ItemType Directory -Path "$tempDir/assets/build" -Force | Out-Null
     
     # Create version.json
@@ -28,8 +27,8 @@ if (!(Test-Path "assets/assets.zip")) {
     
     Set-Content -Path "$tempDir/assets/build/version.json" -Value $version
     
-    # Compress to zip
-    Compress-Archive -Path "$tempDir/*" -DestinationPath "assets/assets.zip" -Force
+    # Compress to zip with correct structure
+    Compress-Archive -Path "$tempDir/assets" -DestinationPath "application/statics/assets.zip" -Force
     Remove-Item -Path $tempDir -Recurse -Force
     Write-Host "assets.zip created successfully" -ForegroundColor Green
 }

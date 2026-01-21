@@ -50,26 +50,29 @@ jobs:
       with:
         go-version: '1.21'
 
-    - name: Create assets directory
+    - name: Create assets directory and files
       run: |
-        mkdir -p assets/build
         mkdir -p application/statics
-
-    - name: Create version.json
-      run: |
-        cat > assets/build/version.json << EOF
+        mkdir -p temp_assets/assets/build
+        
+        # Create version.json
+        cat > temp_assets/assets/build/version.json << EOF
         {
           "name": "cloudreve-frontend",
           "version": "4.0.0"
         }
         EOF
-
-    - name: Create assets.zip
-      run: |
-        cd assets
-        zip -r assets.zip build/
+        
+        # Create assets.zip with correct structure
+        cd temp_assets
+        zip -r ../application/statics/assets.zip assets/
         cd ..
-        cp assets/assets.zip application/statics/assets.zip
+        
+        # Verify the zip structure
+        unzip -l application/statics/assets.zip
+        
+        # Clean up
+        rm -rf temp_assets
 
     - name: Get version
       id: get_version
