@@ -52,7 +52,8 @@ jobs:
         GOARCH: amd64
         CGO_ENABLED: 0
       run: |
-        go build -ldflags "-s -w" -o cloudreve-test ./main.go
+        COMMIT_HASH=$(git rev-parse --short HEAD)
+        go build -ldflags "-s -w -X 'github.com/cloudreve/Cloudreve/v4/application/constants.BackendVersion=4.7.0-dev+${COMMIT_HASH}'" -o cloudreve-test ./main.go
         ls -lh cloudreve-test
         echo "Build successful!"
 
