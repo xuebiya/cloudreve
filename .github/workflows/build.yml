@@ -55,24 +55,19 @@ jobs:
       with:
         go-version: '1.21'
 
-    - name: Download and build frontend
+    - name: Build frontend
       run: |
-        # Clone Cloudreve frontend
-        git clone --depth 1 https://github.com/cloudreve/frontend.git frontend-temp
-        
-        cd frontend-temp
+        # Build frontend from repository
+        cd frontend
         npm install --legacy-peer-deps
         npm run build
         cd ..
         
         # Create assets.zip from frontend build
         mkdir -p application/statics
-        cd frontend-temp/build
+        cd frontend/build
         zip -r ../../application/statics/assets.zip .
         cd ../..
-        
-        # Clean up
-        rm -rf frontend-temp
         
         # Verify the zip structure
         echo "Verifying assets.zip structure:"
