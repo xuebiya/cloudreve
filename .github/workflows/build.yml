@@ -1,0 +1,172 @@
+name: Build Cloudreve with Cloud189 Driver
+
+on:
+  push:
+    branches: [ main ]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build for ${{ matrix.os }}-${{ matrix.arch }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          # Windows
+          - os: windows
+            arch: amd64
+            ext: .exe
+          - os: windows
+            arch: arm64
+            ext: .exe
+          # Linux
+          - os: linux
+            arch: amd64
+            ext: ''
+          - os: linux
+            arch: arm64
+            ext: ''
+          - os: linux
+            arch: arm
+            ext: ''
+          # macOS
+          - os: darwin
+            arch: amd64
+            ext: ''
+          - os: darwin
+            arch: arm64
+            ext: ''
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.21'
+
+    - name: Create assets directory
+      run: |
+        mkdir -p assets/build
+        mkdir -p application/statics
+
+    - name: Create version.json
+      run: |
+        cat > assets/build/version.json << EOF
+        {
+          "name": "cloudreve-frontend",
+          "version": "4.0.0"
+        }
+        EOF
+
+    - name: Create assets.zip
+      run: |
+        cd assets
+        zip -r assets.zip build/
+        cd ..
+        cp assets/assets.zip application/statics/assets.zip
+
+    - name: Get version
+      id: get_version
+      run: |
+        if [[ $GITHUB_REF == refs/tags/* ]]; then
+          echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+        else
+          echo "VERSION=dev-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Build
+      env:
+        GOOS: ${{ matrix.os }}
+        GOARCH: ${{ matrix.arch }}
+        CGO_ENABLED: 0
+      run: |
+        OUTPUT_NAME="cloudreve-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }}"
+        go build -ldflags "-s -w -X 'github.com/cloudreve/Cloudreve/v4/application/constants.BackendVersion=${{ steps.get_version.outputs.VERSION }}'" -o $OUTPUT_NAME ./main.go
+        
+        # Create checksum
+        if [ "${{ matrix.os }}" = "windows" ]; then
+          sha256sum $OUTPUT_NAME > $OUTPUT_NAME.sha256
+        else
+          sha256sum $OUTPUT_NAME > $OUTPUT_NAME.sha256
+        fi
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: cloudreve-${{ matrix.os }}-${{ matrix.arch }}
+        path: |
+          cloudreve-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }}
+          cloudreve-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }}.sha256
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts
+
+    - name: Prepare release files
+      run: |
+        mkdir -p release
+        find artifacts -type f -exec cp {} release/ \;
+        ls -lh release/
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: release/*
+        body: |
+          ## Cloudreve v4 with Cloud189 Driver
+          
+          ### New Features
+          - ✨ China Telecom Cloud189 (天翼云盘) storage driver support
+          - ✅ File upload with chunked upload
+          - ✅ File download
+          - ✅ File deletion
+          - ✅ File listing
+          - ✅ Automatic login and session management
+          
+          ### Supported Platforms
+          - Windows (amd64, arm64)
+          - Linux (amd64, arm64, arm)
+          - macOS (amd64, arm64)
+          
+          ### Installation
+          
+          1. Download the appropriate binary for your platform
+          2. Make it executable (Linux/macOS): `chmod +x cloudreve-*`
+          3. Run: `./cloudreve-*`
+          4. Access: `http://localhost:5212`
+          
+          ### Configuration
+          
+          Add Cloud189 storage policy in admin panel:
+          - Type: `cloud189`
+          - AccessKey: Your Cloud189 account
+          - SecretKey: Your Cloud189 password
+          
+          ### Checksums
+          
+          SHA256 checksums are provided for all binaries.
+          
+          ---
+          
+          **Note**: This is an unofficial build with Cloud189 driver support.
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
